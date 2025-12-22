@@ -181,14 +181,15 @@ const formatDateTime = (dateString: string | null) => {
                 <div class="flex items-center gap-4">
                     <Link href="/">
                         <Button variant="ghost" size="icon">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="h-5 w-5 text-gray-900 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
                         </Button>
                     </Link>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Task Management</h1>
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Task Management</h1>
                 </div>
-                <Link href="/tasks/create">
+                <!-- Desktop: Full button with text (hidden on mobile - floating button used instead) -->
+                <Link href="/tasks/create" class="hidden md:block">
                     <Button>
                         <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -287,87 +288,159 @@ const formatDateTime = (dateString: string | null) => {
                         </div>
                     </div>
 
-                    <div v-else class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr class="border-b border-gray-200 dark:border-gray-700">
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Title</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Priority</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Due Date</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Created</th>
-                                    <th class="px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    v-for="task in tasks"
-                                    :key="task.id"
-                                    class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
-                                >
-                                    <td class="px-4 py-4">
-                                        <Link :href="`/tasks/${task.id}`" class="font-medium text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
-                                            {{ task.title }}
+                    <div v-else>
+                        <!-- Mobile Card View -->
+                        <div class="space-y-4 md:hidden">
+                            <div
+                                v-for="task in tasks"
+                                :key="task.id"
+                                class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                            >
+                                <div class="mb-3 flex items-start justify-between">
+                                    <Link :href="`/tasks/${task.id}`" class="flex-1 font-medium text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
+                                        {{ task.title }}
+                                    </Link>
+                                    <div class="ml-2 flex gap-1">
+                                        <Link :href="`/tasks/${task.id}/edit`">
+                                            <Button variant="ghost" size="icon">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                            </Button>
                                         </Link>
-                                        <p v-if="task.description" class="mt-1 line-clamp-1 text-sm text-gray-500 dark:text-gray-400">
-                                            {{ task.description }}
-                                        </p>
-                                    </td>
-                                    <td class="px-4 py-4">
-                                        <Select
-                                            :model-value="task.status"
-                                            @update:model-value="(value) => updateStatus(task, value)"
-                                            class="w-32"
-                                        >
-                                            <option v-for="(label, value) in statusOptions" :key="value" :value="value">
-                                                {{ label }}
-                                            </option>
-                                        </Select>
-                                    </td>
-                                    <td class="px-4 py-4">
-                                        <span :class="['inline-flex rounded-full px-2 py-1 text-xs font-semibold', getPriorityBadgeClass(task.priority)]">
-                                            {{ priorityOptions[task.priority] }}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                        {{ formatDate(task.due_date) }}
-                                    </td>
-                                    <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                        {{ formatDateTime(task.created_at) }}
-                                    </td>
-                                    <td class="px-4 py-4">
-                                        <div class="flex justify-end gap-2">
-                                            <Link :href="`/tasks/${task.id}/edit`">
-                                                <Button variant="ghost" size="icon">
-                                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <Button variant="ghost" size="icon" @click="openDeleteDialog(task)">
+                                            <svg class="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </Button>
+                                    </div>
+                                </div>
+                                <p v-if="task.description" class="mb-3 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">
+                                    {{ task.description }}
+                                </p>
+                                <div class="mb-3 flex flex-wrap items-center gap-2">
+                                    <span :class="['inline-flex rounded-full px-2 py-1 text-xs font-semibold', getStatusBadgeClass(task.status)]">
+                                        {{ statusOptions[task.status] }}
+                                    </span>
+                                    <span :class="['inline-flex rounded-full px-2 py-1 text-xs font-semibold', getPriorityBadgeClass(task.priority)]">
+                                        {{ priorityOptions[task.priority] }}
+                                    </span>
+                                </div>
+                                <div class="mb-3 grid grid-cols-2 gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                    <div>
+                                        <span class="font-medium">Due:</span> {{ formatDate(task.due_date) }}
+                                    </div>
+                                    <div>
+                                        <span class="font-medium">Created:</span> {{ formatDateTime(task.created_at) }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Change Status</label>
+                                    <Select
+                                        :model-value="task.status"
+                                        @update:model-value="(value) => updateStatus(task, value)"
+                                        class="w-full"
+                                    >
+                                        <option v-for="(label, value) in statusOptions" :key="value" :value="value">
+                                            {{ label }}
+                                        </option>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Desktop Table View -->
+                        <div class="hidden overflow-x-auto md:block">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Title</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Priority</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Due Date</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Created</th>
+                                        <th class="px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="task in tasks"
+                                        :key="task.id"
+                                        class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
+                                    >
+                                        <td class="px-4 py-4">
+                                            <Link :href="`/tasks/${task.id}`" class="font-medium text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
+                                                {{ task.title }}
+                                            </Link>
+                                            <p v-if="task.description" class="mt-1 line-clamp-1 text-sm text-gray-500 dark:text-gray-400">
+                                                {{ task.description }}
+                                            </p>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <Select
+                                                :model-value="task.status"
+                                                @update:model-value="(value) => updateStatus(task, value)"
+                                                class="w-32"
+                                            >
+                                                <option v-for="(label, value) in statusOptions" :key="value" :value="value">
+                                                    {{ label }}
+                                                </option>
+                                            </Select>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span :class="['inline-flex rounded-full px-2 py-1 text-xs font-semibold', getPriorityBadgeClass(task.priority)]">
+                                                {{ priorityOptions[task.priority] }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                            {{ formatDate(task.due_date) }}
+                                        </td>
+                                        <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                            {{ formatDateTime(task.created_at) }}
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex justify-end gap-2">
+                                                <Link :href="`/tasks/${task.id}/edit`">
+                                                    <Button variant="ghost" size="icon">
+                                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path
+                                                                stroke-linecap="round"
+                                                                stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                            />
+                                                        </svg>
+                                                    </Button>
+                                                </Link>
+                                                <Button variant="ghost" size="icon" @click="openDeleteDialog(task)">
+                                                    <svg class="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path
                                                             stroke-linecap="round"
                                                             stroke-linejoin="round"
                                                             stroke-width="2"
-                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                                                         />
                                                     </svg>
                                                 </Button>
-                                            </Link>
-                                            <Button variant="ghost" size="icon" @click="openDeleteDialog(task)">
-                                                <svg class="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                    />
-                                                </svg>
-                                            </Button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
         </main>
+
+        <!-- Mobile Floating Create Button -->
+        <Link href="/tasks/create" class="fixed bottom-6 right-6 md:hidden">
+            <Button size="icon" class="h-14 w-14 rounded-full shadow-lg">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </Button>
+        </Link>
     </div>
 
     <!-- Delete Confirmation Dialog -->

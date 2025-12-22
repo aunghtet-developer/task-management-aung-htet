@@ -20,10 +20,10 @@ const emit = defineEmits<{
 const classes = computed(() => {
     return cn(
         'flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm shadow-sm',
-        'ring-offset-white',
+        'ring-offset-white text-gray-900',
         'focus:outline-none focus:ring-1 focus:ring-gray-950',
         'disabled:cursor-not-allowed disabled:opacity-50',
-        'dark:border-gray-800 dark:ring-offset-gray-950 dark:focus:ring-gray-300',
+        'dark:border-gray-800 dark:ring-offset-gray-950 dark:focus:ring-gray-300 dark:text-white dark:bg-gray-800',
         props.error && 'border-red-500 focus:ring-red-500',
     );
 });
