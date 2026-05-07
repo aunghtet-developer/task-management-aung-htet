@@ -37,7 +37,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18" # သို့မဟုတ် သင့်စက်မှာ သုံးထားတဲ့ version
+          node-version: "22" # သို့မဟုတ် သင့်စက်မှာ သုံးထားတဲ့ version
 
       # 2. NPM Packages များသွင်းပြီး Vue ကို Build လုပ်ခြင်း
       - name: Install NPM dependencies and Build Assets
